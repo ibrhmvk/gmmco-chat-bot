@@ -16,15 +16,12 @@ import {
   getAnnotationData,
   getSourceAnnotationData,
 } from "../index";
+import AudioPlayer from "./AudioPlayer";
 import ChatAvatar from "./chat-avatar";
-import { ChatEvents } from "./chat-events";
 import { ChatFiles } from "./chat-files";
 import { ChatImage } from "./chat-image";
-import { ChatSources } from "./chat-sources";
-import { SuggestedQuestions } from "./chat-suggestedQuestions";
 import ChatTools from "./chat-tools";
 import Markdown from "./markdown";
-import AudioPlayer from './AudioPlayer';
 
 type ContentDisplayConfig = {
   order: number;
@@ -96,7 +93,10 @@ function ChatMessageContent({
     },
     {
       order: 3,
-      component: sourceData[0] ? <ChatSources data={sourceData[0]} /> : null,
+      component: sourceData[0] ? (
+        // <ChatSources data={sourceData[0]} />
+        <></>
+      ) : null,
     },
     {
       order: 4,
@@ -110,9 +110,13 @@ function ChatMessageContent({
     },
     {
       order: -2,
-      component: message.role === 'assistant' ? (
-        <AudioPlayer text={removeImageLinks(message.content)} isGenerating={isLoading} />
-      ) : null,
+      component:
+        message.role === "assistant" ? (
+          <AudioPlayer
+            text={removeImageLinks(message.content)}
+            isGenerating={isLoading}
+          />
+        ) : null,
     },
   ];
   console.log(message.content);
@@ -128,7 +132,7 @@ function ChatMessageContent({
 }
 
 function removeImageLinks(content: string): string {
-  return content.replace(/!\[.*?\]\(.*?\)/g, '');
+  return content.replace(/!\[.*?\]\(.*?\)/g, "");
 }
 
 export default function ChatMessage({
