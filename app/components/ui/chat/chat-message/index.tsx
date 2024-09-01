@@ -108,7 +108,9 @@ function ChatMessageContent({
     },
     {
       order: -2,
-      component: message.role === 'assistant' ? <AudioPlayer text={message.content} isGenerating={isLoading} /> : null,
+      component: message.role === 'assistant' ? (
+        <AudioPlayer text={message.content} isGenerating={isLoading} />
+      ) : null,
     },
   ];
 
