@@ -24,6 +24,7 @@ import { ChatSources } from "./chat-sources";
 import { SuggestedQuestions } from "./chat-suggestedQuestions";
 import ChatTools from "./chat-tools";
 import Markdown from "./markdown";
+import AudioPlayer from './AudioPlayer';
 
 type ContentDisplayConfig = {
   order: number;
@@ -43,7 +44,7 @@ function ChatMessageContent({
   if (!annotations?.length) return <Markdown content={message.content} />;
 
   const imageData = getAnnotationData<ImageData>(
-    annotations,
+    annotations ?? [],
     MessageAnnotationType.IMAGE,
   );
   const contentFileData = getAnnotationData<DocumentFileData>(
@@ -104,6 +105,10 @@ function ChatMessageContent({
           append={append}
         />
       ) : null,
+    },
+    {
+      order: -2,
+      component: message.role === 'assistant' ? <AudioPlayer text={message.content} isGenerating={isLoading} /> : null,
     },
   ];
 
