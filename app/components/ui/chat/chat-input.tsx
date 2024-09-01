@@ -1,13 +1,12 @@
 import { JSONValue } from "ai";
+import { useRef, useState } from "react";
 import { Button } from "../button";
 import { DocumentPreview } from "../document-preview";
-import FileUploader from "../file-uploader";
-import { Input } from "../input";
 import UploadImagePreview from "../upload-image-preview";
+import VoiceRecorder from "./chat-message/VoiceRecorder";
 import { ChatHandler } from "./chat.interface";
 import { useFile } from "./hooks/use-file";
 import { LlamaCloudSelector } from "./widgets/LlamaCloudSelector";
-import VoiceRecorder from "./chat-message/VoiceRecorder";
 
 const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg", "csv", "pdf", "txt", "docx"];
 
@@ -37,6 +36,9 @@ export default function ChatInput(
     reset,
     getAnnotations,
   } = useFile();
+
+  const [isRecording, setIsRecording] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmitWithAnnotations = (
     e: React.FormEvent<HTMLFormElement>,
@@ -77,10 +79,22 @@ export default function ChatInput(
 
   const handleVoiceTranscription = (text: string) => {
     props.setInput!(text);
+    if (formRef.current) {
+      formRef.current.requestSubmit();
+    }
+  };
+
+  const handleRecordingStart = () => {
+    setIsRecording(true);
+  };
+
+  const handleRecordingStop = () => {
+    setIsRecording(false);
   };
 
   return (
     <form
+      ref={formRef}
       onSubmit={onSubmit}
       className="rounded-xl bg-white p-4 shadow-xl space-y-4 shrink-0"
     >
@@ -98,23 +112,24 @@ export default function ChatInput(
           ))}
         </div>
       )}
-      <div className="flex w-full items-start justify-between gap-4 ">
-        <Input
-          autoFocus
-          name="message"
-          placeholder="Type a message"
-          className="flex-1"
-          value={props.input}
-          onChange={props.handleInputChange}
+      <div className="flex w-full items-start justify-center gap-4 ">
+        <VoiceRecorder
+          onTranscription={handleVoiceTranscription}
+          onRecordingStart={handleRecordingStart}
+          onRecordingStop={handleRecordingStop}
         />
-        <VoiceRecorder onTranscription={handleVoiceTranscription} />
         {process.env.NEXT_PUBLIC_USE_LLAMACLOUD === "true" &&
           props.setRequestData && (
             <LlamaCloudSelector setRequestData={props.setRequestData} />
           )}
-        <Button type="submit" disabled={props.isLoading || !props.input.trim()}>
-          Send message
-        </Button>
+        {
+          <Button
+            type="submit"
+            disabled={props.isLoading || !props.input.trim()}
+          >
+            Send message
+          </Button>
+        }
       </div>
     </form>
   );

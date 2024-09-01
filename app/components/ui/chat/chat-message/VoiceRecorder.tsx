@@ -5,9 +5,11 @@ import axios from 'axios';
 
 interface VoiceRecorderProps {
   onTranscription: (text: string) => void;
+  onRecordingStart: () => void;
+  onRecordingStop: () => void;
 }
 
-const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription }) => {
+const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription, onRecordingStart, onRecordingStop }) => {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -24,6 +26,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription }) => {
       mediaRecorderRef.current.onstop = handleStop;
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      onRecordingStart();
     } catch (error) {
       console.error('Error accessing microphone:', error);
     }
@@ -33,6 +36,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription }) => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      onRecordingStop();
     }
   };
 
