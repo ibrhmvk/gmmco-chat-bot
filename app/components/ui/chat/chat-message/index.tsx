@@ -76,7 +76,8 @@ function ChatMessageContent({
       order: -3,
       component:
         eventData.length > 0 ? (
-          <ChatEvents isLoading={isLoading} data={eventData} />
+          // <ChatEvents isLoading={isLoading} data={eventData} />
+          <></>
         ) : null,
     },
     {
@@ -100,10 +101,11 @@ function ChatMessageContent({
     {
       order: 4,
       component: suggestedQuestionsData[0] ? (
-        <SuggestedQuestions
-          questions={suggestedQuestionsData[0]}
-          append={append}
-        />
+        // <SuggestedQuestions
+        //   questions={suggestedQuestionsData[0]}
+        //   append={append}
+        // />
+        <></>
       ) : null,
     },
     {
