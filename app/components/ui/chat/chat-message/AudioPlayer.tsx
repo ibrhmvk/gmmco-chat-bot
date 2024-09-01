@@ -51,7 +51,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
     <>
       {audioUrl && (
         <audio
-          ref={audioRef}
+          ref={audioRef as React.RefObject<HTMLAudioElement>}
           src={audioUrl}
           onEnded={handleAudioEnded}
         />
