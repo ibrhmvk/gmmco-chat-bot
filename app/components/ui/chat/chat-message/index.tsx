@@ -109,11 +109,11 @@ function ChatMessageContent({
     {
       order: -2,
       component: message.role === 'assistant' ? (
-        <AudioPlayer text={message.content} isGenerating={isLoading} />
+        <AudioPlayer text={removeImageLinks(message.content)} isGenerating={isLoading} />
       ) : null,
     },
   ];
-
+  console.log(message.content);
   return (
     <div className="flex-1 gap-4 flex flex-col">
       {contents
@@ -123,6 +123,10 @@ function ChatMessageContent({
         ))}
     </div>
   );
+}
+
+function removeImageLinks(content: string): string {
+  return content.replace(/!\[.*?\]\(.*?\)/g, '');
 }
 
 export default function ChatMessage({
