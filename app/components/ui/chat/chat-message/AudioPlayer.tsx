@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import { useAudio } from '../../../../context/AudioContext';
 
 interface AudioPlayerProps {
   text: string;
@@ -8,10 +9,13 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isAudioReady, setIsAudioReady] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { isPlaying, setIsPlaying, audioRef } = useAudio() as {
+    isPlaying: boolean;
+    setIsPlaying: (isPlaying: boolean) => void;
+    audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+  };
 
   const fetchAudio = async () => {
     if (audioUrl || isFetching) return;
@@ -43,7 +47,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
       setIsPlaying(true);
       setIsAudioReady(false);
     }
-  }, [isAudioReady]);
+  }, [isAudioReady, setIsPlaying, audioRef]);
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -67,6 +71,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
           onPause={() => setIsPlaying(false)}
         />
       )}
+      {/* Add your play/pause button here, using the togglePlayPause function */}
     </>
   );
 };

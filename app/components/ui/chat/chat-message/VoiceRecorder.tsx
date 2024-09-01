@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Button } from "../../button";
 import { Mic, Square } from "lucide-react";
 import axios from 'axios';
+import { useAudio } from '../../../../context/AudioContext';
 
 interface VoiceRecorderProps {
   onTranscription: (text: string) => void;
@@ -13,8 +14,12 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription, onRecord
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const { isPlaying, stopAudio } = useAudio();
 
   const startRecording = async () => {
+    if (isPlaying) {
+      stopAudio();
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
