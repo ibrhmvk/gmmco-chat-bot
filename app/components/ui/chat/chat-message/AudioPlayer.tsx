@@ -57,7 +57,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
   };
 
   return (
-    <div>
+    <>
       {audioUrl && (
         <audio
           ref={audioRef}
@@ -67,7 +67,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
           onPause={() => setIsPlaying(false)}
         />
       )}
-    </div>
+    </>
   );
 };
 
