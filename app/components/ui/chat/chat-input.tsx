@@ -7,6 +7,7 @@ import UploadImagePreview from "../upload-image-preview";
 import { ChatHandler } from "./chat.interface";
 import { useFile } from "./hooks/use-file";
 import { LlamaCloudSelector } from "./widgets/LlamaCloudSelector";
+import VoiceRecorder from "./chat-message/VoiceRecorder";
 
 const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg", "csv", "pdf", "txt", "docx"];
 
@@ -37,8 +38,6 @@ export default function ChatInput(
     getAnnotations,
   } = useFile();
 
-  // default submit function does not handle including annotations in the message
-  // so we need to use append function to submit new message with annotations
   const handleSubmitWithAnnotations = (
     e: React.FormEvent<HTMLFormElement>,
     annotations: JSONValue[] | undefined,
@@ -76,6 +75,10 @@ export default function ChatInput(
     }
   };
 
+  const handleVoiceTranscription = (text: string) => {
+    props.setInput!(text);
+  };
+
   return (
     <form
       onSubmit={onSubmit}
@@ -104,14 +107,7 @@ export default function ChatInput(
           value={props.input}
           onChange={props.handleInputChange}
         />
-        {/* <FileUploader
-          onFileUpload={handleUploadFile}
-          onFileError={props.onFileError}
-          config={{
-            allowedExtensions: ALLOWED_EXTENSIONS,
-            disabled: props.isLoading,
-          }}
-        /> */}
+        <VoiceRecorder onTranscription={handleVoiceTranscription} />
         {process.env.NEXT_PUBLIC_USE_LLAMACLOUD === "true" &&
           props.setRequestData && (
             <LlamaCloudSelector setRequestData={props.setRequestData} />
