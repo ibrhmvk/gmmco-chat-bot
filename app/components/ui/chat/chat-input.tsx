@@ -38,6 +38,7 @@ export default function ChatInput(
   } = useFile();
 
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscriptionReady, setIsTranscriptionReady] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmitWithAnnotations = (
@@ -55,6 +56,7 @@ export default function ChatInput(
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    setIsTranscriptionReady(false);
     const annotations = getAnnotations();
     if (annotations.length) {
       handleSubmitWithAnnotations(e, annotations);
@@ -79,9 +81,7 @@ export default function ChatInput(
 
   const handleVoiceTranscription = (text: string) => {
     props.setInput!(text);
-    if (formRef.current) {
-      formRef.current.requestSubmit();
-    }
+    setIsTranscriptionReady(true);
   };
 
   const handleRecordingStart = () => {
@@ -122,14 +122,14 @@ export default function ChatInput(
           props.setRequestData && (
             <LlamaCloudSelector setRequestData={props.setRequestData} />
           )}
-        {
+        {isTranscriptionReady && (
           <Button
             type="submit"
             disabled={props.isLoading || !props.input.trim()}
           >
             Send message
           </Button>
-        }
+        )}
       </div>
     </form>
   );
