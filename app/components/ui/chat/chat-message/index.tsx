@@ -164,7 +164,7 @@ function ChatMessageContent({
       component:
         message.role === "assistant" && translatedContent && !isTranslating && isMessageComplete ? (
           <AudioPlayer
-            text={translatedContent}
+            text={removeImageLinks(translatedContent)}
             isGenerating={false}
           />
         ) : null,
