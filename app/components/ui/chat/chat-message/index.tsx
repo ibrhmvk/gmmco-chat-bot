@@ -1,7 +1,7 @@
 import { Check, Copy } from "lucide-react";
 
 import { Message } from "ai";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Button } from "../../button";
 import { useCopyToClipboard } from "../hooks/use-copy-to-clipboard";
 import {
@@ -22,11 +22,39 @@ import { ChatFiles } from "./chat-files";
 import { ChatImage } from "./chat-image";
 import ChatTools from "./chat-tools";
 import Markdown from "./markdown";
+import axios from "axios";
 
 type ContentDisplayConfig = {
   order: number;
   component: JSX.Element | null;
 };
+
+async function translateToHindi(text: string): Promise<string> {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: `Translate the following text to Hindi: ${text}`,
+          },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error("Error translating text:", error);
+    return text; // Fallback to original text if translation fails
+  }
+}
 
 function ChatMessageContent({
   message,
@@ -37,6 +65,29 @@ function ChatMessageContent({
   isLoading: boolean;
   append: Pick<ChatHandler, "append">["append"];
 }) {
+  const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isMessageComplete, setIsMessageComplete] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && message.role === "assistant") {
+      setIsMessageComplete(true);
+    }
+  }, [isLoading, message.role]);
+
+  useEffect(() => {
+    async function translateContent() {
+      if (isMessageComplete && !isTranslating && message.role === "assistant") {
+        setIsTranslating(true);
+        const translated = await translateToHindi(message.content);
+        setTranslatedContent(translated);
+        setIsTranslating(false);
+      }
+    }
+
+    translateContent();
+  }, [message.content, message.role, isMessageComplete]);
+
   const annotations = message.annotations as MessageAnnotation[] | undefined;
   if (!annotations?.length) return <Markdown content={message.content} />;
 
@@ -111,22 +162,19 @@ function ChatMessageContent({
     {
       order: -2,
       component:
-        message.role === "assistant" ? (
+        message.role === "assistant" && translatedContent && !isTranslating && isMessageComplete ? (
           <AudioPlayer
-            text={removeImageLinks(message.content)}
-            isGenerating={isLoading}
+            text={translatedContent}
+            isGenerating={false}
           />
         ) : null,
     },
   ];
-  console.log(message.content);
   return (
     <div className="flex-1 gap-4 flex flex-col">
       {contents
         .sort((a, b) => a.order - b.order)
-        .map((content, index) => (
-          <Fragment key={index}>{content.component}</Fragment>
-        ))}
+        .map((content) => content.component && <Fragment key={content.order}>{content.component}</Fragment>)}
     </div>
   );
 }
