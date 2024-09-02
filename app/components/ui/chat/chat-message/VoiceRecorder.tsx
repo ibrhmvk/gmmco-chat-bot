@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import axios from "axios";
+import { Mic, Square, StopCircle } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { useAudio } from "../../../../context/AudioContext";
 import { Button } from "../../button";
-import { Mic, Square } from "lucide-react";
-import axios from 'axios';
-import { useAudio } from '../../../../context/AudioContext';
 
 interface VoiceRecorderProps {
   onTranscription: (text: string) => void;
@@ -10,8 +10,13 @@ interface VoiceRecorderProps {
   onRecordingStop: () => void;
 }
 
-const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription, onRecordingStart, onRecordingStop }) => {
+const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
+  onTranscription,
+  onRecordingStart,
+  onRecordingStop,
+}) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false); // State to track audio playing
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const { isPlaying, stopAudio } = useAudio();
@@ -33,7 +38,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription, onRecord
       setIsRecording(true);
       onRecordingStart();
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error("Error accessing microphone:", error);
     }
   };
 
@@ -46,7 +51,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription, onRecord
   };
 
   const handleStop = async () => {
-    const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+    const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
     chunksRef.current = [];
 
     const formData = new FormData();
@@ -62,23 +67,51 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscription, onRecord
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       onTranscription(translationData.text);
     } catch (error) {
-      console.error('Error transcribing audio:', error);
+      console.error("Error transcribing audio:", error);
     }
   };
 
+  const handleAudioPlay = () => {
+    setIsAudioPlaying(true);
+  };
+
+  const handleAudioStop = () => {
+    stopAudio();
+    setIsAudioPlaying(false);
+  };
+
+  useEffect(() => {
+    if (isPlaying) {
+      handleAudioPlay();
+    } else {
+      setIsAudioPlaying(false);
+    }
+  }, [isPlaying]);
+
   return (
-    <Button
-      onClick={isRecording ? stopRecording : startRecording}
-      variant="outline"
-      size="icon"
-    >
-      {isRecording ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-    </Button>
+    <>
+      <Button
+        onClick={isRecording ? stopRecording : startRecording}
+        variant="outline"
+        size="icon"
+      >
+        {isRecording ? (
+          <Square className="h-4 w-4 " />
+        ) : (
+          <Mic className="h-4 w-4 " />
+        )}
+      </Button>
+      {isAudioPlaying && (
+        <Button onClick={handleAudioStop} size="icon" variant="outline">
+          <StopCircle className="h-4 w-4" />
+        </Button>
+      )}
+    </>
   );
 };
 
