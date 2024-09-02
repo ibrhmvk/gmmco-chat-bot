@@ -68,6 +68,7 @@ function ChatMessageContent({
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [isMessageComplete, setIsMessageComplete] = useState(false);
+  const [isAudioPlayerReady, setIsAudioPlayerReady] = useState(false);
 
   useEffect(() => {
     if (!isLoading && message.role === "assistant") {
@@ -77,16 +78,17 @@ function ChatMessageContent({
 
   useEffect(() => {
     async function translateContent() {
-      if (isMessageComplete && !isTranslating && message.role === "assistant") {
+      if (isMessageComplete && !isTranslating && message.role === "assistant" && !isAudioPlayerReady) {
         setIsTranslating(true);
         const translated = await translateToHindi(message.content);
         setTranslatedContent(translated);
         setIsTranslating(false);
+        setIsAudioPlayerReady(true);
       }
     }
 
     translateContent();
-  }, [message.content, message.role, isMessageComplete]);
+  }, [message.content, message.role, isMessageComplete, isAudioPlayerReady]);
 
   const annotations = message.annotations as MessageAnnotation[] | undefined;
   if (!annotations?.length) return <Markdown content={message.content} />;
@@ -162,10 +164,10 @@ function ChatMessageContent({
     {
       order: -2,
       component:
-        message.role === "assistant" && translatedContent && !isTranslating && isMessageComplete ? (
+        message.role === "assistant" && isAudioPlayerReady ? (
           <AudioPlayer
-            text={removeImageLinks(translatedContent)}
-            isGenerating={false}
+            text={removeImageLinks(translatedContent!)}
+            isGenerating={isTranslating}
           />
         ) : null,
     },
