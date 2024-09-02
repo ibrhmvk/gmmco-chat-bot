@@ -9,10 +9,12 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
   const { isPlaying, setIsPlaying, audioRef } = useAudio();
   const fetchRef = useRef(false); // Ref to track if the API call is in progress or done
 
   const fetchAudio = async (newText: string) => {
+    setIsLoading(true); // Start loading
     try {
       const response = await axios.post(
         "/api/text-to-speech",
@@ -25,6 +27,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
       console.error("Error fetching audio:", error);
     } finally {
       fetchRef.current = false; // Reset the fetch status
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -49,12 +52,22 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
 
   return (
     <>
-      {audioUrl && (
-        <audio
-          ref={audioRef as React.RefObject<HTMLAudioElement>}
-          src={audioUrl}
-          onEnded={handleAudioEnded}
-        />
+      {isLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+           <div className="relative inline-flex">
+        <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+        <div className="w-8 h-8 bg-blue-500 rounded-full absolute top-0 left-0 animate-ping"></div>
+        <div className="w-8 h-8 bg-blue-500 rounded-full absolute top-0 left-0 animate-pulse"></div>
+    </div>
+        </div>
+      ) : (
+        audioUrl && (
+          <audio
+            ref={audioRef as React.RefObject<HTMLAudioElement>}
+            src={audioUrl}
+            onEnded={handleAudioEnded}
+          />
+        )
       )}
     </>
   );

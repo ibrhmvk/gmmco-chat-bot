@@ -153,23 +153,18 @@ function ChatMessageContent({
     },
     {
       order: 4,
-      component: suggestedQuestionsData[0] ? (
-        // <SuggestedQuestions
-        //   questions={suggestedQuestionsData[0]}
-        //   append={append}
-        // />
-        <></>
+      component:
+      message.role === "assistant" && isAudioPlayerReady ? (
+        <AudioPlayer
+          text={removeImageLinks(translatedContent!)}
+          isGenerating={isTranslating}
+        />
       ) : null,
     },
     {
       order: -2,
       component:
-        message.role === "assistant" && isAudioPlayerReady ? (
-          <AudioPlayer
-            text={removeImageLinks(translatedContent!)}
-            isGenerating={isTranslating}
-          />
-        ) : null,
+        <></>
     },
   ];
   return (
