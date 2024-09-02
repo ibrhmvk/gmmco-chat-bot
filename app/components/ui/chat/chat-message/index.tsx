@@ -70,6 +70,9 @@ function ChatMessageContent({
   const [isMessageComplete, setIsMessageComplete] = useState(false);
   const [isAudioPlayerReady, setIsAudioPlayerReady] = useState(false);
 
+  const userDataString = localStorage.getItem("user_data");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+
   useEffect(() => {
     if (!isLoading && message.role === "assistant") {
       setIsMessageComplete(true);
@@ -77,18 +80,21 @@ function ChatMessageContent({
   }, [isLoading, message.role]);
 
   useEffect(() => {
-    async function translateContent() {
+    async function processContent() {
       if (isMessageComplete && !isTranslating && message.role === "assistant" && !isAudioPlayerReady) {
         setIsTranslating(true);
-        const translated = await translateToHindi(message.content);
-        setTranslatedContent(translated);
+        let content = message.content;
+        if (userData?.language === "hi") {
+          content = await translateToHindi(message.content);
+        }
+        setTranslatedContent(content);
         setIsTranslating(false);
         setIsAudioPlayerReady(true);
       }
     }
 
-    translateContent();
-  }, [message.content, message.role, isMessageComplete, isAudioPlayerReady]);
+    processContent();
+  }, [message.content, message.role, isMessageComplete, isAudioPlayerReady, userData?.language]);
 
   const annotations = message.annotations as MessageAnnotation[] | undefined;
   if (!annotations?.length) return <Markdown content={message.content} />;

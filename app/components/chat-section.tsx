@@ -8,6 +8,9 @@ import { useClientConfig } from "./ui/chat/hooks/use-config";
 export default function ChatSection() {
   const { backend } = useClientConfig();
   const [requestData, setRequestData] = useState<any>();
+  const userDataString = localStorage.getItem("user_data");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+
   const {
     messages,
     input,
@@ -19,7 +22,7 @@ export default function ChatSection() {
     append,
     setInput,
   } = useChat({
-    body: { data: requestData },
+    body: { data: requestData, userData },
     api: `${backend}/api/chat`,
     headers: {
       "Content-Type": "application/json", // using JSON because of vercel/ai 2.2.26
