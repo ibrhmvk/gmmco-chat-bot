@@ -25,7 +25,7 @@ export default function Home() {
       <div className="absolute top-4 right-4">
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded"
+          className=" text-black px-4 py-2 rounded font-sans font-bold"
         >
           Logout
         </button>

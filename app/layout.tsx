@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "./markdown.css";
+import AuthRedirect from "./authRedirect"; // Import the new component
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <AuthRedirect /> {/* Add the AuthRedirect component */}
+        {children}
+      </body>
     </html>
   );
 }
