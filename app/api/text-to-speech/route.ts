@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 export async function POST(req: NextRequest) {
-  const { text } = await req.json();
+  const { text, language } = await req.json();
+
+
 
   if (!process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY) {
     console.error('NEXT_PUBLIC_ELEVENLABS_API_KEY is not set');
@@ -15,7 +17,7 @@ export async function POST(req: NextRequest) {
       {
         text: text,
         model_id: "eleven_turbo_v2_5",
-        language_code: "hi",
+        language_code: language,
       },
       {
         headers: {

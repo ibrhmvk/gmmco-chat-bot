@@ -12,13 +12,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ text, isGenerating }) => {
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const { isPlaying, setIsPlaying, audioRef } = useAudio();
   const fetchRef = useRef(false); // Ref to track if the API call is in progress or done
+  const userDataString = localStorage.getItem("user_data");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
 
   const fetchAudio = async (newText: string) => {
     setIsLoading(true); // Start loading
     try {
       const response = await axios.post(
         "/api/text-to-speech",
-        { text: newText },
+        { text: newText, language: userData.language },
         { responseType: "arraybuffer" },
       );
       const blob = new Blob([response.data], { type: "audio/mpeg" });

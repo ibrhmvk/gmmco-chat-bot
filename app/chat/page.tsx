@@ -1,5 +1,5 @@
 import Header from "@/app/components/header";
-import ClientWrapper from "./components/ClientWrapper";
+import ClientWrapper from "../components/ClientWrapper";
 
 export default function Home() {
   return (
